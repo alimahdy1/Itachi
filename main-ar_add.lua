@@ -46,6 +46,10 @@ local MiscTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+    
+            
+        elseif selectedLocation == "الحصن" then
+        -- تبويب اللاعب
 local PlayerTab = Window:MakeTab({
     Name = "لاعب",
     Icon = "rbxassetid://112",
@@ -141,65 +145,65 @@ PlayerTab:AddDropdown({
         if not (player and player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
             return
         end
-        
-        local selectedLocation = options[1]
-        local destination = nil
-        local locationFound = false
-        
-        if selectedLocation == "نار المخيم" then
-            local campfire = workspace.Map and workspace.Map.Campground and workspace.Map.Campground.MainFire
-            if campfire and campfire:FindFirstChild("Center") then
-                destination = campfire.Center.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "مكان آمن تحت الأرض" then
-            local baseplate = workspace.Map and workspace.Map:FindFirstChild("Baseplate")
-            if baseplate then
-                destination = baseplate.Position + Vector3.new(0, 3, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "تضحية البركان" then
-            local volcano = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Volcano")
-            if volcano and volcano:FindFirstChild("Functional") and volcano.Functional:FindFirstChild("Sacrifice") 
-               and volcano.Functional.Sacrifice:FindFirstChild("Fuse") and volcano.Functional.Sacrifice.Fuse:FindFirstChild("Wedge") then
-                destination = volcano.Functional.Sacrifice.Fuse.Wedge.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "الحصن" then
-            local stronghold = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Stronghold")
-            if stronghold and stronghold:FindFirstChild("Functional") and stronghold.Functional:FindFirstChild("Sign") then
-                destination = stronghold.Functional.Sign.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "بيت الجنية" then
-            local fairyHouse = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Fairy House")
-            if fairyHouse and fairyHouse:FindFirstChild("Fairy") and fairyHouse.Fairy:FindFirstChild("HumanoidRootPart") then
-                destination = fairyHouse.Fairy.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "ورشة الأدوات" then
-            local toolWorkshop = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("ToolWorkshop")
-            if toolWorkshop and toolWorkshop:FindFirstChild("Main") then
-                destination = toolWorkshop.Main.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-        end
-        
-        if locationFound and destination then
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(destination)
-        else
-            ApocLibrary:Notify({
-                Title = "لم يتم العثور على الموقع",
-                Content = "الموقع '" .. selectedLocation .. "' لم يتم تحميله بعد. جرب كشف الخريطة أولاً!",
-                Duration = 6.5,
-                Image = 4483362458,
-            })
-        end
+
+        local selectedLocation = options[1]  
+        local destination = nil  
+        local locationFound = false  
+
+        if selectedLocation == "نار المخيم" then  
+            local campfire = workspace.Map and workspace.Map.Campground and workspace.Map.Campground.MainFire  
+            if campfire and campfire:FindFirstChild("Center") then  
+                destination = campfire.Center.Position + Vector3.new(0, 5, 0)  
+                locationFound = true  
+            end  
+
+        elseif selectedLocation == "مكان آمن تحت الأرض" then  
+            local baseplate = workspace.Map and workspace.Map:FindFirstChild("Baseplate")  
+            if baseplate then  
+                destination = baseplate.Position + Vector3.new(0, 3, 0)  
+                locationFound = true  
+            end  
+
+        elseif selectedLocation == "تضحية البركان" then  
+            local volcano = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Volcano")  
+            if volcano and volcano:FindFirstChild("Functional") and volcano.Functional:FindFirstChild("Sacrifice")   
+               and volcano.Functional.Sacrifice:FindFirstChild("Fuse") and volcano.Functional.Sacrifice.Fuse:FindFirstChild("Wedge") then  
+                destination = volcano.Functional.Sacrifice.Fuse.Wedge.Position + Vector3.new(0, 5, 0)  
+                locationFound = true  
+            end  
+
+        elseif selectedLocation == "الحصن" then  
+            local stronghold = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Stronghold")  
+            if stronghold and stronghold:FindFirstChild("Functional") and stronghold.Functional:FindFirstChild("Sign") then  
+                destination = stronghold.Functional.Sign.Position + Vector3.new(0, 5, 0)  
+                locationFound = true  
+            end  
+
+        elseif selectedLocation == "بيت الجنية" then  
+            local fairyHouse = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Fairy House")  
+            if fairyHouse and fairyHouse:FindFirstChild("Fairy") and fairyHouse.Fairy:FindFirstChild("HumanoidRootPart") then  
+                destination = fairyHouse.Fairy.HumanoidRootPart.Position + Vector3.new(0, 5, 0)  
+                locationFound = true  
+            end  
+
+        elseif selectedLocation == "ورشة الأدوات" then  
+            local toolWorkshop = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("ToolWorkshop")  
+            if toolWorkshop and toolWorkshop:FindFirstChild("Main") then  
+                destination = toolWorkshop.Main.Position + Vector3.new(0, 5, 0)  
+                locationFound = true  
+            end  
+        end  
+
+        if locationFound and destination then  
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(destination)  
+        else  
+            ApocLibrary:Notify({  
+                Title = "لم يتم العثور على الموقع",  
+                Content = "الموقع '" .. selectedLocation .. "' لم يتم تحميله بعد. جرب كشف الخريطة أولاً!",  
+                Duration = 6.5,  
+                Image = 4483362458,  
+            })  
+        end  
     end
 })
 

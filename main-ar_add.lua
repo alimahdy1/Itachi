@@ -52,6 +52,158 @@ local PlayerTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+-- عناصر التحكم في واجهة اللاعب
+PlayerTab:AddToggle({
+    Name = "تفعيل السرعة",
+    CurrentValue = false,
+    Flag = "Player_EnableSpeed",
+    Callback = function(v)
+        PlayerControl.SpeedEnabled = v
+        UpdateAll()
+    end
+})
+
+PlayerTab:AddSlider({
+    Name = "قيمة السرعة",
+    Range = {16, 100},
+    Increment = 1,
+    Suffix = " سرعة",
+    CurrentValue = PlayerControl.SpeedValue,
+    Flag = "Player_SpeedValue",
+    Callback = function(val)
+        PlayerControl.SpeedValue = val
+        if PlayerControl.SpeedEnabled then UpdateAll() end
+    end
+})
+
+PlayerTab:AddToggle({
+    Name = "تفعيل القفز",
+    CurrentValue = false,
+    Flag = "Player_EnableJump",
+    Callback = function(v)
+        PlayerControl.JumpEnabled = v
+        UpdateAll()
+    end
+})
+
+PlayerTab:AddSlider({
+    Name = "قوة القفز",
+    Range = {25, 150},
+    Increment = 1,
+    Suffix = " قفز",
+    CurrentValue = PlayerControl.JumpValue,
+    Flag = "Player_JumpValue",
+    Callback = function(val)
+        PlayerControl.JumpValue = val
+        if PlayerControl.JumpEnabled then UpdateAll() end
+    end
+})
+
+PlayerTab:AddToggle({
+    Name = "وضع الطيران",
+    CurrentValue = false,
+    Flag = "Player_FlyMode",
+    Callback = function(v)
+        PlayerControl.FlyEnabled = v
+        if not v then
+            -- إعادة تعيين السرعة عند الإلغاء
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                char.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+            end
+        end
+    end
+})
+
+PlayerTab:AddSlider({
+    Name = "سرعة الطيران",
+    Range = {10, 200},
+    Increment = 1,
+    Suffix = " وحدة/ث",
+    CurrentValue = PlayerControl.FlySpeed,
+    Flag = "Player_FlySpeed",
+    Callback = function(val)
+        PlayerControl.FlySpeed = val
+    end
+})
+
+-- النقل الفوري للأماكن المهمة
+PlayerTab:AddLabel("🗺️ النقل الفوري للأماكن المهمة:")
+PlayerTab:AddLabel("إذا لم يعمل النقل الفوري، جرب كشف الخريطة أولاً لأن بعض المواقع قد تكون غير محملة بعد.")
+
+PlayerTab:AddDropdown({
+    Name = "النقل الفوري للأماكن المهمة",
+    Options = {"نار المخيم", "مكان آمن تحت الأرض", "تضحية البركان", "الحصن", "بيت الجنية", "ورشة الأدوات"},
+    CurrentOption = {"نار المخيم"},
+    Flag = "Player_TeleportLocation",
+    Callback = function(options)
+        local player = game.Players.LocalPlayer
+        if not (player and player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
+            return
+        end
+        
+        local selectedLocation = options[1]
+        local destination = nil
+        local locationFound = false
+        
+        if selectedLocation == "نار المخيم" then
+            local campfire = workspace.Map and workspace.Map.Campground and workspace.Map.Campground.MainFire
+            if campfire and campfire:FindFirstChild("Center") then
+                destination = campfire.Center.Position + Vector3.new(0, 5, 0)
+                locationFound = true
+            end
+            
+        elseif selectedLocation == "مكان آمن تحت الأرض" then
+            local baseplate = workspace.Map and workspace.Map:FindFirstChild("Baseplate")
+            if baseplate then
+                destination = baseplate.Position + Vector3.new(0, 3, 0)
+                locationFound = true
+            end
+            
+        elseif selectedLocation == "تضحية البركان" then
+            local volcano = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Volcano")
+            if volcano and volcano:FindFirstChild("Functional") and volcano.Functional:FindFirstChild("Sacrifice") 
+               and volcano.Functional.Sacrifice:FindFirstChild("Fuse") and volcano.Functional.Sacrifice.Fuse:FindFirstChild("Wedge") then
+                destination = volcano.Functional.Sacrifice.Fuse.Wedge.Position + Vector3.new(0, 5, 0)
+                locationFound = true
+            end
+            
+        elseif selectedLocation == "الحصن" then
+            local stronghold = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Stronghold")
+            if stronghold and stronghold:FindFirstChild("Functional") and stronghold.Functional:FindFirstChild("Sign") then
+                destination = stronghold.Functional.Sign.Position + Vector3.new(0, 5, 0)
+                locationFound = true
+            end
+            
+        elseif selectedLocation == "بيت الجنية" then
+            local fairyHouse = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Fairy House")
+            if fairyHouse and fairyHouse:FindFirstChild("Fairy") and fairyHouse.Fairy:FindFirstChild("HumanoidRootPart") then
+                destination = fairyHouse.Fairy.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
+                locationFound = true
+            end
+            
+        elseif selectedLocation == "ورشة الأدوات" then
+            local toolWorkshop = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("ToolWorkshop")
+            if toolWorkshop and toolWorkshop:FindFirstChild("Main") then
+                destination = toolWorkshop.Main.Position + Vector3.new(0, 5, 0)
+                locationFound = true
+            end
+        end
+        
+        if locationFound and destination then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(destination)
+        else
+            ApocLibrary:Notify({
+                Title = "لم يتم العثور على الموقع",
+                Content = "الموقع '" .. selectedLocation .. "' لم يتم تحميله بعد. جرب كشف الخريطة أولاً!",
+                Duration = 6.5,
+                Image = 4483362458,
+            })
+        end
+    end
+})
+
+
 local CombatTab = Window:MakeTab({
     Name = "القتال",
     Icon = "rbxassetid://112",
@@ -5047,156 +5199,7 @@ MiscTab:AddButton({
     end
 })
 
--- عناصر التحكم في واجهة اللاعب
-PlayerTab:AddToggle({
-    Name = "تفعيل السرعة",
-    CurrentValue = false,
-    Flag = "Player_EnableSpeed",
-    Callback = function(v)
-        PlayerControl.SpeedEnabled = v
-        UpdateAll()
-    end
-})
 
-PlayerTab:AddSlider({
-    Name = "قيمة السرعة",
-    Range = {16, 100},
-    Increment = 1,
-    Suffix = " سرعة",
-    CurrentValue = PlayerControl.SpeedValue,
-    Flag = "Player_SpeedValue",
-    Callback = function(val)
-        PlayerControl.SpeedValue = val
-        if PlayerControl.SpeedEnabled then UpdateAll() end
-    end
-})
-
-PlayerTab:AddToggle({
-    Name = "تفعيل القفز",
-    CurrentValue = false,
-    Flag = "Player_EnableJump",
-    Callback = function(v)
-        PlayerControl.JumpEnabled = v
-        UpdateAll()
-    end
-})
-
-PlayerTab:AddSlider({
-    Name = "قوة القفز",
-    Range = {25, 150},
-    Increment = 1,
-    Suffix = " قفز",
-    CurrentValue = PlayerControl.JumpValue,
-    Flag = "Player_JumpValue",
-    Callback = function(val)
-        PlayerControl.JumpValue = val
-        if PlayerControl.JumpEnabled then UpdateAll() end
-    end
-})
-
-PlayerTab:AddToggle({
-    Name = "وضع الطيران",
-    CurrentValue = false,
-    Flag = "Player_FlyMode",
-    Callback = function(v)
-        PlayerControl.FlyEnabled = v
-        if not v then
-            -- إعادة تعيين السرعة عند الإلغاء
-            local char = LocalPlayer.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                char.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
-            end
-        end
-    end
-})
-
-PlayerTab:AddSlider({
-    Name = "سرعة الطيران",
-    Range = {10, 200},
-    Increment = 1,
-    Suffix = " وحدة/ث",
-    CurrentValue = PlayerControl.FlySpeed,
-    Flag = "Player_FlySpeed",
-    Callback = function(val)
-        PlayerControl.FlySpeed = val
-    end
-})
-
--- النقل الفوري للأماكن المهمة
-PlayerTab:AddLabel("🗺️ النقل الفوري للأماكن المهمة:")
-PlayerTab:AddLabel("إذا لم يعمل النقل الفوري، جرب كشف الخريطة أولاً لأن بعض المواقع قد تكون غير محملة بعد.")
-
-PlayerTab:AddDropdown({
-    Name = "النقل الفوري للأماكن المهمة",
-    Options = {"نار المخيم", "مكان آمن تحت الأرض", "تضحية البركان", "الحصن", "بيت الجنية", "ورشة الأدوات"},
-    CurrentOption = {"نار المخيم"},
-    Flag = "Player_TeleportLocation",
-    Callback = function(options)
-        local player = game.Players.LocalPlayer
-        if not (player and player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
-            return
-        end
-        
-        local selectedLocation = options[1]
-        local destination = nil
-        local locationFound = false
-        
-        if selectedLocation == "نار المخيم" then
-            local campfire = workspace.Map and workspace.Map.Campground and workspace.Map.Campground.MainFire
-            if campfire and campfire:FindFirstChild("Center") then
-                destination = campfire.Center.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "مكان آمن تحت الأرض" then
-            local baseplate = workspace.Map and workspace.Map:FindFirstChild("Baseplate")
-            if baseplate then
-                destination = baseplate.Position + Vector3.new(0, 3, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "تضحية البركان" then
-            local volcano = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Volcano")
-            if volcano and volcano:FindFirstChild("Functional") and volcano.Functional:FindFirstChild("Sacrifice") 
-               and volcano.Functional.Sacrifice:FindFirstChild("Fuse") and volcano.Functional.Sacrifice.Fuse:FindFirstChild("Wedge") then
-                destination = volcano.Functional.Sacrifice.Fuse.Wedge.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "الحصن" then
-            local stronghold = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Stronghold")
-            if stronghold and stronghold:FindFirstChild("Functional") and stronghold.Functional:FindFirstChild("Sign") then
-                destination = stronghold.Functional.Sign.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "بيت الجنية" then
-            local fairyHouse = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Fairy House")
-            if fairyHouse and fairyHouse:FindFirstChild("Fairy") and fairyHouse.Fairy:FindFirstChild("HumanoidRootPart") then
-                destination = fairyHouse.Fairy.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-            
-        elseif selectedLocation == "ورشة الأدوات" then
-            local toolWorkshop = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("ToolWorkshop")
-            if toolWorkshop and toolWorkshop:FindFirstChild("Main") then
-                destination = toolWorkshop.Main.Position + Vector3.new(0, 5, 0)
-                locationFound = true
-            end
-        end
-        
-        if locationFound and destination then
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(destination)
-        else
-            ApocLibrary:Notify({
-                Title = "لم يتم العثور على الموقع",
-                Content = "الموقع '" .. selectedLocation .. "' لم يتم تحميله بعد. جرب كشف الخريطة أولاً!",
-                Duration = 6.5,
-                Image = 4483362458,
-            })
-        end
-    end
-})
 
 -- أدوات التحكم في واجهة القتال
 CombatTab:AddToggle({

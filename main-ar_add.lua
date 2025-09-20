@@ -48,163 +48,11 @@ local MiscTab = Window:MakeTab({
 
     
             
-        elseif selectedLocation == "الحصن" then
-        -- تبويب اللاعب
+    
 local PlayerTab = Window:MakeTab({
     Name = "لاعب",
     Icon = "rbxassetid://112",
     PremiumOnly = false
-})
-
--- عناصر التحكم في واجهة اللاعب
-PlayerTab:AddToggle({
-    Name = "تفعيل السرعة",
-    CurrentValue = false,
-    Flag = "Player_EnableSpeed",
-    Callback = function(v)
-        PlayerControl.SpeedEnabled = v
-        UpdateAll()
-    end
-})
-
-PlayerTab:AddSlider({
-    Name = "قيمة السرعة",
-    Range = {16, 100},
-    Increment = 1,
-    Suffix = " سرعة",
-    CurrentValue = PlayerControl.SpeedValue,
-    Flag = "Player_SpeedValue",
-    Callback = function(val)
-        PlayerControl.SpeedValue = val
-        if PlayerControl.SpeedEnabled then UpdateAll() end
-    end
-})
-
-PlayerTab:AddToggle({
-    Name = "تفعيل القفز",
-    CurrentValue = false,
-    Flag = "Player_EnableJump",
-    Callback = function(v)
-        PlayerControl.JumpEnabled = v
-        UpdateAll()
-    end
-})
-
-PlayerTab:AddSlider({
-    Name = "قوة القفز",
-    Range = {25, 150},
-    Increment = 1,
-    Suffix = " قفز",
-    CurrentValue = PlayerControl.JumpValue,
-    Flag = "Player_JumpValue",
-    Callback = function(val)
-        PlayerControl.JumpValue = val
-        if PlayerControl.JumpEnabled then UpdateAll() end
-    end
-})
-
-PlayerTab:AddToggle({
-    Name = "وضع الطيران",
-    CurrentValue = false,
-    Flag = "Player_FlyMode",
-    Callback = function(v)
-        PlayerControl.FlyEnabled = v
-        if not v then
-            -- إعادة تعيين السرعة عند الإلغاء
-            local char = LocalPlayer.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                char.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
-            end
-        end
-    end
-})
-
-PlayerTab:AddSlider({
-    Name = "سرعة الطيران",
-    Range = {10, 200},
-    Increment = 1,
-    Suffix = " وحدة/ث",
-    CurrentValue = PlayerControl.FlySpeed,
-    Flag = "Player_FlySpeed",
-    Callback = function(val)
-        PlayerControl.FlySpeed = val
-    end
-})
-
--- النقل الفوري للأماكن المهمة
-PlayerTab:AddLabel("🗺️ النقل الفوري للأماكن المهمة:")
-PlayerTab:AddLabel("إذا لم يعمل النقل الفوري، جرب كشف الخريطة أولاً لأن بعض المواقع قد تكون غير محملة بعد.")
-
-PlayerTab:AddDropdown({
-    Name = "النقل الفوري للأماكن المهمة",
-    Options = {"نار المخيم", "مكان آمن تحت الأرض", "تضحية البركان", "الحصن", "بيت الجنية", "ورشة الأدوات"},
-    CurrentOption = {"نار المخيم"},
-    Flag = "Player_TeleportLocation",
-    Callback = function(options)
-        local player = game.Players.LocalPlayer
-        if not (player and player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
-            return
-        end
-
-        local selectedLocation = options[1]  
-        local destination = nil  
-        local locationFound = false  
-
-        if selectedLocation == "نار المخيم" then  
-            local campfire = workspace.Map and workspace.Map.Campground and workspace.Map.Campground.MainFire  
-            if campfire and campfire:FindFirstChild("Center") then  
-                destination = campfire.Center.Position + Vector3.new(0, 5, 0)  
-                locationFound = true  
-            end  
-
-        elseif selectedLocation == "مكان آمن تحت الأرض" then  
-            local baseplate = workspace.Map and workspace.Map:FindFirstChild("Baseplate")  
-            if baseplate then  
-                destination = baseplate.Position + Vector3.new(0, 3, 0)  
-                locationFound = true  
-            end  
-
-        elseif selectedLocation == "تضحية البركان" then  
-            local volcano = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Volcano")  
-            if volcano and volcano:FindFirstChild("Functional") and volcano.Functional:FindFirstChild("Sacrifice")   
-               and volcano.Functional.Sacrifice:FindFirstChild("Fuse") and volcano.Functional.Sacrifice.Fuse:FindFirstChild("Wedge") then  
-                destination = volcano.Functional.Sacrifice.Fuse.Wedge.Position + Vector3.new(0, 5, 0)  
-                locationFound = true  
-            end  
-
-        elseif selectedLocation == "الحصن" then  
-            local stronghold = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Stronghold")  
-            if stronghold and stronghold:FindFirstChild("Functional") and stronghold.Functional:FindFirstChild("Sign") then  
-                destination = stronghold.Functional.Sign.Position + Vector3.new(0, 5, 0)  
-                locationFound = true  
-            end  
-
-        elseif selectedLocation == "بيت الجنية" then  
-            local fairyHouse = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("Fairy House")  
-            if fairyHouse and fairyHouse:FindFirstChild("Fairy") and fairyHouse.Fairy:FindFirstChild("HumanoidRootPart") then  
-                destination = fairyHouse.Fairy.HumanoidRootPart.Position + Vector3.new(0, 5, 0)  
-                locationFound = true  
-            end  
-
-        elseif selectedLocation == "ورشة الأدوات" then  
-            local toolWorkshop = workspace.Map and workspace.Map.Landmarks and workspace.Map.Landmarks:FindFirstChild("ToolWorkshop")  
-            if toolWorkshop and toolWorkshop:FindFirstChild("Main") then  
-                destination = toolWorkshop.Main.Position + Vector3.new(0, 5, 0)  
-                locationFound = true  
-            end  
-        end  
-
-        if locationFound and destination then  
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(destination)  
-        else  
-            ApocLibrary:Notify({  
-                Title = "لم يتم العثور على الموقع",  
-                Content = "الموقع '" .. selectedLocation .. "' لم يتم تحميله بعد. جرب كشف الخريطة أولاً!",  
-                Duration = 6.5,  
-                Image = 4483362458,  
-            })  
-        end  
-    end
 })
 
 
@@ -214,11 +62,30 @@ local CombatTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+CombatTab:AddDropdown({
+    Name = "أنواع الأسلحة",
+    Default = "",
+    Options = {
+        "فأس عام","رمح","نجمة الصباح","سيف الثلج","سيف الجحيم",
+        "سيف الليزر","رمح سام","الشوكة ثلاثية","كاتانا"
+    },
+    Callback = function(v) EquipWeapon(v) end
+})
 
 local TreesTab = Window:MakeTab({
     Name = "الاشجار",
     Icon = "rbxassetid://115714662895227",
     PremiumOnly = false
+})
+
+TreesTab:AddDropdown({
+    Name = "أنواع الأشجار",
+    Default = "",
+    Options = {
+        "كل الأشجار","شجرة صغيرة","شجرة صغيرة ثلجية",
+        "شجرة كبيرة نوع 1","شجرة كبيرة نوع 2","شجرة كبيرة نوع 3"
+    },
+    Callback = function(v) HarvestTree(v) end
 })
 
 local CampfireTab = Window:MakeTab({
@@ -227,12 +94,41 @@ local CampfireTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+CampfireTab:AddDropdown({
+    Name = "عناصر إعادة التعبئة",
+    Default = "",
+    Options = {
+        "كل العناصر","خشب","فحم","وقود حيوي","خزان وقود","برميل زيت"
+    },
+    Callback = function(v) RefillItem(v) end
+})
+
+
 local CraftingTab = Window:MakeTab({
     Name = "المصنع",
     Icon = "rbxassetid://112",
     PremiumOnly = false
 })
 
+-- عناصر الخردة
+CraftingTab:AddDropdown({
+    Name = "عناصر الخردة",
+    Default = "",
+    Options = {
+        "مسمار","صفيحة معدنية","مروحة مكسورة","راديو قديم","ميكروويف مكسور",
+        "إطار","كرسي معدني","محرك سيارة قديم","غسالة",
+        "تجربة طائفية","نموذج طائفي","خردة طبق طائر"
+    },
+    Callback = function(v) CraftScrap(v) end
+})
+
+-- جوهرة الطائفة
+CraftingTab:AddDropdown({
+    Name = "جوهرة الطائفة",
+    Default = "",
+    Options = { "جوهرة الطائفة" },
+    Callback = function(v) CraftGem(v) end
+})
 
 local FoodTab = Window:MakeTab({
     Name = "الاكل",
@@ -240,11 +136,31 @@ local FoodTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+FoodTab:AddDropdown({
+    Name = "أنواع الطعام",
+    Default = "",
+    Options = {
+        "كل الطعام","كيك","أضلاع","ستيك","قطعة لحم",
+        "جزر","ذرة","يقطين","توت","تفاح","فلفل حار"
+    },
+    Callback = function(v) EatFood(v) end
+})
 
 local AnimalPeltsTab = Window:MakeTab({
     Name = "جلود",
     Icon = "rbxassetid://112",
     PremiumOnly = false
+})
+
+
+AnimalPeltsTab:AddDropdown({
+    Name = "أنواع الجلود",
+    Default = "",
+    Options = {
+        "قدم أرنب","جلد ذئب","جلد ذئب ألفا","جلد دب",
+        "جلد ثعلب قطبي","جلد دب قطبي","ناب الماموث"
+    },
+    Callback = function(v) SellPelt(v) end
 })
 
 
@@ -254,6 +170,12 @@ local HealingTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+HealingTab:AddDropdown({
+    Name = "أدوات العلاج",
+    Default = "",
+    Options = { "كل أدوات العلاج","ضمادة","حقيبة طبية" },
+    Callback = function(v) UseHealing(v) end
+})
 
 local AmmoTab = Window:MakeTab({
     Name = "العتاد",
@@ -261,11 +183,31 @@ local AmmoTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+AmmoTab:AddDropdown({
+    Name = "أنواع الذخيرة",
+    Default = "",
+    Options = {
+        "كل أنواع الذخيرة","ذخيرة مسدس","ذخيرة بندقية","ذخيرة بندقية رش"
+    },
+    Callback = function(v) BuyAmmo(v) end
+})
 
 local ChestsTab = Window:MakeTab({
     Name = "اااصناديق",
     Icon = "rbxassetid://112",
     PremiumOnly = false
+})
+
+ChestsTab:AddDropdown({
+    Name = "أنواع الصناديق",
+    Default = "",
+    Options = {
+        "صندوق عادي","صندوق عادي 2","صندوق عادي 3","صندوق عادي 4",
+        "صندوق عادي 5","صندوق عادي 6",
+        "صندوق بركاني 1","صندوق بركاني 2",
+        "صندوق ثلجي 1","صندوق ثلجي 2"
+    },
+    Callback = function(v) OpenChest(nil,v) end
 })
 
 local ESPTab = Window:MakeTab({

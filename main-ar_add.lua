@@ -78,15 +78,7 @@ local TreesTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-TreesTab:AddDropdown({
-    Name = "أنواع الأشجار",
-    Default = "",
-    Options = {
-        "كل الأشجار","شجرة صغيرة","شجرة صغيرة ثلجية",
-        "شجرة كبيرة نوع 1","شجرة كبيرة نوع 2","شجرة كبيرة نوع 3"
-    },
-    Callback = function(v) HarvestTree(v) end
-})
+
 
 local CampfireTab = Window:MakeTab({
     Name = "نار المخيم",
@@ -94,14 +86,7 @@ local CampfireTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-CampfireTab:AddDropdown({
-    Name = "عناصر إعادة التعبئة",
-    Default = "",
-    Options = {
-        "كل العناصر","خشب","فحم","وقود حيوي","خزان وقود","برميل زيت"
-    },
-    Callback = function(v) RefillItem(v) end
-})
+
 
 
 local CraftingTab = Window:MakeTab({
@@ -110,25 +95,8 @@ local CraftingTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- عناصر الخردة
-CraftingTab:AddDropdown({
-    Name = "عناصر الخردة",
-    Default = "",
-    Options = {
-        "مسمار","صفيحة معدنية","مروحة مكسورة","راديو قديم","ميكروويف مكسور",
-        "إطار","كرسي معدني","محرك سيارة قديم","غسالة",
-        "تجربة طائفية","نموذج طائفي","خردة طبق طائر"
-    },
-    Callback = function(v) CraftScrap(v) end
-})
 
--- جوهرة الطائفة
-CraftingTab:AddDropdown({
-    Name = "جوهرة الطائفة",
-    Default = "",
-    Options = { "جوهرة الطائفة" },
-    Callback = function(v) CraftGem(v) end
-})
+
 
 local FoodTab = Window:MakeTab({
     Name = "الاكل",
@@ -136,15 +104,6 @@ local FoodTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-FoodTab:AddDropdown({
-    Name = "أنواع الطعام",
-    Default = "",
-    Options = {
-        "كل الطعام","كيك","أضلاع","ستيك","قطعة لحم",
-        "جزر","ذرة","يقطين","توت","تفاح","فلفل حار"
-    },
-    Callback = function(v) EatFood(v) end
-})
 
 local AnimalPeltsTab = Window:MakeTab({
     Name = "جلود",
@@ -153,16 +112,6 @@ local AnimalPeltsTab = Window:MakeTab({
 })
 
 
-AnimalPeltsTab:AddDropdown({
-    Name = "أنواع الجلود",
-    Default = "",
-    Options = {
-        "قدم أرنب","جلد ذئب","جلد ذئب ألفا","جلد دب",
-        "جلد ثعلب قطبي","جلد دب قطبي","ناب الماموث"
-    },
-    Callback = function(v) SellPelt(v) end
-})
-
 
 local HealingTab = Window:MakeTab({
     Name = "العلاج",
@@ -170,12 +119,7 @@ local HealingTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-HealingTab:AddDropdown({
-    Name = "أدوات العلاج",
-    Default = "",
-    Options = { "كل أدوات العلاج","ضمادة","حقيبة طبية" },
-    Callback = function(v) UseHealing(v) end
-})
+
 
 local AmmoTab = Window:MakeTab({
     Name = "العتاد",
@@ -183,14 +127,6 @@ local AmmoTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-AmmoTab:AddDropdown({
-    Name = "أنواع الذخيرة",
-    Default = "",
-    Options = {
-        "كل أنواع الذخيرة","ذخيرة مسدس","ذخيرة بندقية","ذخيرة بندقية رش"
-    },
-    Callback = function(v) BuyAmmo(v) end
-})
 
 local ChestsTab = Window:MakeTab({
     Name = "اااصناديق",
@@ -198,17 +134,6 @@ local ChestsTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-ChestsTab:AddDropdown({
-    Name = "أنواع الصناديق",
-    Default = "",
-    Options = {
-        "صندوق عادي","صندوق عادي 2","صندوق عادي 3","صندوق عادي 4",
-        "صندوق عادي 5","صندوق عادي 6",
-        "صندوق بركاني 1","صندوق بركاني 2",
-        "صندوق ثلجي 1","صندوق ثلجي 2"
-    },
-    Callback = function(v) OpenChest(nil,v) end
-})
 
 local ESPTab = Window:MakeTab({
     Name = "كشف",

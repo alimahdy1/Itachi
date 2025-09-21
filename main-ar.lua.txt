@@ -1,15 +1,17 @@
+--[[
+    99 Night At Forest - وحدة اللاعب (المرحلة الأولى)
+    هذا الاسكربت يقوم فقط بتهيئة واجهة المستخدم وإضافة عناصر تحكم أساسية لخصائص اللاعب.
+    النطاق (كما هو مطلوب):
+      - تهيئة واجهة المستخدم مع تبويب واحد "اللاعب"
+      - عناصر تحكم لخصائص شخصية اللاعب:
+          * السرعة (WalkSpeed)
+          * القفز (JumpPower)
+          * الطيران (يلغي التصادمات على أجزاء الشخصية المحلية)
+    لا توجد ميزات إضافية غير المذكورة في هذه المرحلة.
+]]
 
-
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/dndjsjssj/Ggg/refs/heads/main/Ggs"))()
-
-local Window = OrionLib:MakeWindow({
-    Name = "SCRPIT gg",
-    HidePremium = false,
-    SaveConfig = true,
-    IntroText = "م",
-    IntroIcon = "rbxassetid://م",
-    ConfigFolder = "OrionTest"
-})
+-- تحميل مكتبة واجهة المستخدم الخارجية
+local ApocLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/nouralddin-abdullah/Apoc/refs/heads/main/toasty.lua"))()
 
 -- الخدمات / المراجع الأساسية
 local Players = game:GetService("Players")
@@ -33,119 +35,88 @@ local TeleportationControl = {
     StartTime = 0
 }
 
+-- إنشاء النافذة الرئيسية
+local Window = ApocLibrary:CreateWindow({
+    Name = "مركز ToastyXD",
+    Icon = 4483362458, -- معرف أصل مؤقت (قم بالتحديث إذا كان لديك أيقونة مخصصة)
+    LoadingTitle = "واجهة 99 ليلة",
+    LoadingSubtitle = "جاري تحميل الاسكربت...",
+    ShowText = "99NF",
+    Theme = "Default",
+    ToggleUIKeybind = 'K',
+    DisableApocPrompts = true,
+    DisableBuildWarnings = true,
+    ConfigurationSaving = { Enabled = false },
+    Discord = { Enabled = false },
+    KeySystem = false
+})
+
 -- إنشاء تبويب المعلومات (معلومات مهمة)
-local infoTab = Window:MakeTab({
-    Name = "innfo",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+InfoTab = Window:CreateTab("المعلومات", 4483362458)
+InfoSection = InfoTab:CreateSection("معلومات مهمة")
 
-local MiscTab = Window:MakeTab({
-    Name = "الادوات",
-    Icon = "rbxassetid://115714662895227",
-    PremiumOnly = false
-})
+-- إنشاء تبويب متنوع
+MiscTab = Window:CreateTab("متنوع", 4483362458)
+MiscSection = MiscTab:CreateSection("أدوات متنوعة")
 
-local PlayerTab = Window:MakeTab({
-    Name = "لاعب",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+-- تبويب اللاعب (كما هو مطلوب)
+PlayerTab = Window:CreateTab("اللاعب", 4483362458)
+PlayerSection = PlayerTab:CreateSection("إعدادات اللاعب")
 
-local CombatTab = Window:MakeTab({
-    Name = "القتال",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+-- إنشاء تبويب القتال
+CombatTab = Window:CreateTab("القتال", 4483362458)
+CombatSection = CombatTab:CreateSection("الهجوم التلقائي")
 
+-- إنشاء تبويب الأشجار
+TreesTab = Window:CreateTab("الأشجار", 4483362458)
+TreesSection = TreesTab:CreateSection("قطع الأشجار")
 
-local TreesTab = Window:MakeTab({
-    Name = "الاشجار",
-    Icon = "rbxassetid://115714662895227",
-    PremiumOnly = false
-})
+-- إنشاء تبويب نار المخيم
+CampfireTab = Window:CreateTab("نار المخيم", 4483362458)
+CampfireSection = CampfireTab:CreateSection("إعادة التعبئة التلقائية")
 
-local CampfireTab = Window:MakeTab({
-    Name = "نار المخيم",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+-- إنشاء تبويب التصنيع
+CraftingTab = Window:CreateTab("التصنيع", 4483362458)
+CraftingSection = CraftingTab:CreateSection("آلة التخريد")
 
-local CraftingTab = Window:MakeTab({
-    Name = "المصنع",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+-- إنشاء تبويب الطعام
+FoodTab = Window:CreateTab("الطعام", 4483362458)
+FoodSection = FoodTab:CreateSection("نقل الطعام")
 
+-- إنشاء تبويب جلود الحيوانات
+AnimalPeltsTab = Window:CreateTab("جلود الحيوانات", 4483362458)
+AnimalPeltsSection = AnimalPeltsTab:CreateSection("نقل جلود الحيوانات")
 
-local FoodTab = Window:MakeTab({
-    Name = "الاكل",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+-- إنشاء تبويب العلاج
+HealingTab = Window:CreateTab("العلاج", 4483362458)
+HealingSection = HealingTab:CreateSection("نقل أدوات العلاج")
 
+-- إنشاء تبويب الذخيرة
+AmmoTab = Window:CreateTab("الذخيرة", 4483362458)
+AmmoSection = AmmoTab:CreateSection("نقل الذخيرة")
 
-local AnimalPeltsTab = Window:MakeTab({
-    Name = "جلود",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+-- إنشاء تبويب الصناديق
+ChestsTab = Window:CreateTab("الصناديق", 4483362458)
+ChestsSection = ChestsTab:CreateSection("باحث الصناديق")
 
+-- إنشاء تبويب الرؤية المحسنة
+ESPTab = Window:CreateTab("الرؤية المحسنة", 4483362458)
+ESPSection = ESPTab:CreateSection("الرؤية البصرية")
 
-local HealingTab = Window:MakeTab({
-    Name = "العلاج",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+-- إنشاء تبويب القاعدة الجوية
+SkybaseTab = Window:CreateTab("القاعدة الجوية", 4483362458)
+SkybaseSection = SkybaseTab:CreateSection("البقاء التلقائي")
 
+-- إنشاء تبويب الأطفال المفقودين
+LostChildrenTab = Window:CreateTab("الأطفال المفقودين", 4483362458)
+LostChildrenSection = LostChildrenTab:CreateSection("إنقاذ الأطفال")
 
-local AmmoTab = Window:MakeTab({
-    Name = "العتاد",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
+GUITap = Window:CreateTab("الواجهات", 4483362458)
+GUISection = GUITap:CreateSection("قسم الواجهات المستقلة")
 
-
-local ChestsTab = Window:MakeTab({
-    Name = "اااصناديق",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
-
-local ESPTab = Window:MakeTab({
-    Name = "كشف",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
-
-local SkybaseTab = Window:MakeTab({
-    Name = "الجوي",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
-
-
-
-local LostChildrenTab = Window:MakeTab({
-    Name = "الاطفال",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
-
-
-local GUITap = Window:MakeTab({
-    Name = "جيبي",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
-
-local CreditsTab = Window:MakeTab({
-    Name = "الانتماء",
-    Icon = "rbxassetid://112",
-    PremiumOnly = false
-})
-
-
+-- إنشاء تبويب الائتمانات
+CreditsTab = Window:CreateTab("الائتمانات", 4483362458)
+CreditsSection = CreditsTab:CreateSection("حول المطور والدعم")
 
 
 -- خريطة الترجمة العربية لأسماء العرض
@@ -4673,7 +4644,7 @@ local function createSkybaseGui()
     -- Close button connection
     closeButton.MouseButton1Click:Connect(function()
         SkybaseControl.GuiEnabled = false
-    screenGui:Destroy()
+        screenGui:Destroy()
         SkybaseControl.SkybaseGui = nil
         -- Also delete platform when closing GUI
         if SkybaseControl.PlatformModel then
@@ -4852,9 +4823,9 @@ local function stopRevealingMap()
 end
 
 -- أدوات التحكم في واجهة المتنوعات
-MiscTab:AddLabel("بعد إيقاف تشغيله تأكد من زيارة نار المخيم لإعادة تشغيل الإضاءة الحقيقية")
+MiscTab:CreateLabel("بعد إيقاف تشغيله تأكد من زيارة نار المخيم لإعادة تشغيل الإضاءة الحقيقية")
 
-MiscTab:AddToggle({
+MiscTab:CreateToggle({
     Name = "ضوء النهار دائماً",
     CurrentValue = false,
     Flag = "Misc_AlwaysDayLight",
@@ -4864,7 +4835,7 @@ MiscTab:AddToggle({
 })
 
 -- قسم معزز الأداء
-MiscTab:AddLabel("⚡ معزز الأداء - يرجى ملاحظة: بمجرد تفعيله، للتعطيل يجب إعادة تشغيل اللعبة/الخادم")
+MiscTab:CreateLabel("⚡ معزز الأداء - يرجى ملاحظة: بمجرد تفعيله، للتعطيل يجب إعادة تشغيل اللعبة/الخادم")
 
 -- Performance Booster Control
 local PerformanceBoosterControl = {
@@ -4938,7 +4909,7 @@ local function activatePerformanceBooster()
     PerformanceBoosterControl.WorkspaceConnection = workspace.DescendantAdded:Connect(optimizeObject)
 end
 
-MiscTab:AddToggle({
+MiscTab:CreateToggle({
     Name = "معزز الأداء",
     CurrentValue = false,
     Flag = "Misc_PerformanceBooster",
@@ -4991,7 +4962,7 @@ local function deactivateInstantChests()
     InstantChestsControl.IsActive = false
 end
 
-MiscTab:AddToggle({
+MiscTab:CreateToggle({
     Name = "فتح الصناديق فورياً",
     CurrentValue = false,
     Flag = "Misc_InstantOpenChests",

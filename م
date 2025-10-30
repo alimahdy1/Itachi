@@ -1,0 +1,313 @@
+
+
+
+-- 3. ESP Player
+VisualsTab:CreateToggle({
+    Name = "كشف الاعبين",
+    CurrentValue = false,
+    Flag = "EspPlayer",
+    Callback = function(state)
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local function getDistance(pos)
+            local char = LocalPlayer.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            return hrp and (pos - hrp.Position).Magnitude or nil
+        end
+
+        local function createPlayerESP(part)
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "كشف لاعبين"
+            billboard.Adornee = part
+            billboard.Size = UDim2.new(0, 180, 0, 25)
+            billboard.StudsOffset = Vector3.new(0, 3.2, 0)
+            billboard.AlwaysOnTop = true
+            billboard.LightInfluence = 0
+            billboard.Parent = part
+
+            local label = Instance.new("TextLabel")
+            label.Name = "Label"
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextStrokeTransparency = 0.25
+            label.TextScaled = true
+            label.RichText = true
+            label.Font = Enum.Font.GothamSemibold
+            label.Text = ""
+            label.TextColor3 = Color3.fromRGB(100, 180, 255)
+            label.Parent = billboard
+
+            return label
+        end
+
+        local function removeAllESPs()
+            local folder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Players")
+            if folder then
+                for _, char in ipairs(folder:GetChildren()) do
+                    if char:IsA("Model") then
+                        local hrp = char:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            local existing = hrp:FindFirstChild("PlayerESP")
+                            if existing then existing:Destroy() end
+                        end
+                    end
+                end
+            end
+        end
+
+        if state then
+            if playerESPThread and coroutine.status(playerESPThread) == "suspended" then
+                coroutine.close(playerESPThread)
+            end
+            playerESPThread = coroutine.create(function()
+                while true do
+                    local folder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Players")
+                    if folder then
+                        for _, char in ipairs(folder:GetChildren()) do
+                            if char:IsA("Model") then
+                                local team = char:GetAttribute("Team")
+                                if team ~= "Nextbot" and char.Name ~= Players.LocalPlayer.Name then
+                                    local hrp = char:FindFirstChild("HumanoidRootPart")
+                                    if hrp then
+                                        local espGui = hrp:FindFirstChild("PlayerESP")
+                                        local label = espGui and espGui:FindFirstChild("Label")
+                                        if not label then label = createPlayerESP(hrp) end
+                                        if label then
+                                            local dist = getDistance(hrp.Position) or 0
+                                            local downed = char:GetAttribute("Downed")
+                                            local downedTime = tonumber(char:GetAttribute("DownedTimeLeft")) or 0
+                                            local name = char.Name
+
+                                            local displayText, color
+                                            if downed == true then
+                                                color = Color3.fromRGB(255, 120, 120) -- soft red
+                                                displayText = string.format('%s <font size="16">(Downed %.0f)</font>', name, downedTime)
+                                            elseif downed == false then
+                                                color = Color3.fromRGB(120, 255, 120) -- soft green
+                                                displayText = string.format('%s\n%.0f studs', name, dist)
+                                            else
+                                                color = Color3.fromRGB(120, 180, 255) -- soft blue
+                                                displayText = string.format('%s\n%.0f studs', name, dist)
+                                            end
+                                            if label.Text ~= displayText or label.TextColor3 ~= color then
+                                                label.Text = displayText
+                                                label.TextColor3 = color
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+            coroutine.resume(playerESPThread)
+        else
+            removeAllESPs()
+            if playerESPThread and coroutine.status(playerESPThread) == "suspended" then
+                coroutine.close(playerESPThread)
+                playerESPThread = nil
+            end
+        end
+    end
+})
+
+-- 4. ESP Ticket
+VisualsTab:CreateToggle({
+    Name = "كشف حلوى الهالوين",
+    CurrentValue = false,
+    Flag = "EspTicket",
+    Callback = function(state)
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local function getDistance(pos)
+            local char = LocalPlayer.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            return hrp and (pos - hrp.Position).Magnitude or nil
+        end
+
+        local function createESP(part)
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "كشف حلوى الهالوين"
+            billboard.Adornee = part
+            billboard.Size = UDim2.new(0, 180, 0, 25)
+            billboard.StudsOffset = Vector3.new(0, 3.2, 0)
+            billboard.AlwaysOnTop = true
+            billboard.LightInfluence = 0
+            billboard.Parent = part
+
+            local label = Instance.new("TextLabel")
+            label.Name = "حلوى الهالوين"
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextStrokeTransparency = 0.25
+            label.TextScaled = true
+            label.Font = Enum.Font.GothamSemibold
+            label.TextColor3 = Color3.fromRGB(255, 255, 150) -- soft yellow
+            label.Text = "Ticket"
+            label.Parent = billboard
+
+            return billboard
+        end
+
+        local function removeAllTicketESP()
+            local ticketFolder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Effects") and workspace.Game.Effects:FindFirstChild("Tickets")
+            if ticketFolder then
+                for _, ticketModel in ipairs(ticketFolder:GetChildren()) do
+                    if ticketModel:IsA("Model") then
+                        local part = ticketModel:FindFirstChildWhichIsA("BasePart")
+                        if part then
+                            local existing = part:FindFirstChild("TicketESP")
+                            if existing then existing:Destroy() end
+                        end
+                    end
+                end
+            end
+        end
+
+        if state then
+            if ticketESPThread and coroutine.status(ticketESPThread) == "suspended" then
+                coroutine.close(ticketESPThread)
+            end
+            ticketESPThread = coroutine.create(function()
+                while true do
+                    local ticketFolder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Effects") and workspace.Game.Effects:FindFirstChild("Tickets")
+                    if ticketFolder then
+                        for _, ticketModel in ipairs(ticketFolder:GetChildren()) do
+                            if ticketModel:IsA("Model") then
+                                local part = ticketModel:FindFirstChildWhichIsA("BasePart")
+                                if part then
+                                    local billboard = part:FindFirstChild("TicketESP") or createESP(part)
+                                    local label = billboard and billboard:FindFirstChild("Ticket")
+                                    if label then
+                                        local dist = getDistance(part.Position)
+                                        if dist then
+                                            label.Text = string.format("%s\n%.0f studs", ticketModel.Name, dist)
+                                        else
+                                            label.Text = ticketModel.Name
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+            coroutine.resume(ticketESPThread)
+        else
+            removeAllTicketESP()
+            if ticketESPThread and coroutine.status(ticketESPThread) == "suspended" then
+                coroutine.close(ticketESPThread)
+                ticketESPThread = nil
+            end
+        end
+    end
+})
+
+-- 5. ESP Nextbot
+VisualsTab:CreateToggle({
+    Name = "ESP كشف الوحوش",
+    CurrentValue = false,
+    Flag = "EspNextbot",
+    Callback = function(state)
+        local LocalPlayer = game:GetService("Players").LocalPlayer
+        local function getDistance(pos)
+            local char = LocalPlayer.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            return hrp and (pos - hrp.Position).Magnitude or nil
+        end
+        local function getESPPart(obj)
+            if obj:IsA("BasePart") then return obj
+            elseif obj:IsA("Model") then
+                return obj:FindFirstChild("Root") or obj:FindFirstChild("Head") or obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChildWhichIsA("BasePart")
+            end
+        end
+        local function getColorByDistance(dist)
+            if dist <= 12 then return Color3.fromRGB( 50,  50,  50) -- soft black
+            elseif dist <= 60 then
+                local t = (dist - 6) / 14
+                return Color3.fromRGB(255, 120 + (255 - 120) * t, 120) -- soft red-orange
+            else return Color3.fromRGB(200, 150, 255) -- soft purple
+            end
+        end
+        local function createESP(part)
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "الوحش"
+            billboard.Adornee = part
+            billboard.Size = UDim2.new(0, 180, 0, 25)
+            billboard.StudsOffset = Vector3.new(0, 3.2, 0)
+            billboard.AlwaysOnTop = true
+            billboard.LightInfluence = 0
+            billboard.Parent = part
+
+            local label = Instance.new("TextLabel")
+            label.Name = "Label"
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextStrokeTransparency = 0.25
+            label.TextScaled = true
+            label.Font = Enum.Font.GothamSemibold
+            label.Text = ""
+            label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            label.Parent = billboard
+
+            return billboard
+        end
+        local function removeAllNextbotESP()
+            local folder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Players")
+            if folder then
+                for _, npc in ipairs(folder:GetChildren()) do
+                    local part = getESPPart(npc)
+                    if part then
+                        local existing = part:FindFirstChild("NextbotESP")
+                        if existing then existing:Destroy() end
+                    end
+                end
+            end
+        end
+        if state then
+            if nextbotESPThread and coroutine.status(nextbotESPThread) == "suspended" then
+                coroutine.close(nextbotESPThread)
+            end
+            nextbotESPThread = coroutine.create(function()
+                while true do
+                    local folder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Players")
+                    if folder then
+                        for _, npc in ipairs(folder:GetChildren()) do
+                            if npc:GetAttribute("Team") == "Nextbot" then
+                                local part = getESPPart(npc)
+                                if part then
+                                    local billboard = part:FindFirstChild("NextbotESP") or createESP(part)
+                                    local label = billboard and billboard:FindFirstChild("Label")
+                                    if label then
+                                        local dist = getDistance(part.Position)
+                                        if dist then
+                                            label.Text = string.format("%s\n%.0f studs", npc.Name, dist)
+                                            label.TextColor3 = getColorByDistance(dist)
+                                        else
+                                            label.Text = npc.Name
+                                            label.TextColor3 = Color3.fromRGB(255, 255, 255)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+            coroutine.resume(nextbotESPThread)
+        else
+            removeAllNextbotESP()
+            if nextbotESPThread and coroutine.status(nextbotESPThread) == "suspended" then
+                coroutine.close(nextbotESPThread)
+                nextbotESPThread = nil
+            end
+        end
+    end
+})
+
